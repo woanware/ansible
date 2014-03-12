@@ -1,0 +1,9 @@
+---
+remove_packages:
+  - empathy
+  - thunderbird
+  - unity-lens-shopping
+  - unity-lens-music 
+  - unity-lens-photos 
+  - unity-lens-gwibber 
+  - unity-lens-video

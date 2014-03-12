@@ -1,0 +1,116 @@
+- hosts: localhost
+  connection: local
+  gather_facts: False
+  
+  vars:
+    user: woany
+  
+  vars_files:
+    - vars/add_packages.yml
+    - vars/remove_packages.yml
+    
+  tasks:
+    - name: Add enfs UI repo
+      sudo: true
+      apt_repository: repo='ppa:gencfsm'
+      
+    - name: Add PeerGuardian repo
+      sudo: true
+      apt_repository: repo='ppa:jre-phoenix/ppa'
+
+    - name: add key
+      apt_key: data="{{ lookup('file', 'files/webupd8.key.asc') }}" state=present
+      sudo: true
+
+    - name: Add Oracle repo
+      sudo: true
+      apt_repository: repo='ppa:webupd8team/java'
+   
+     #- name: Add 
+     # apt_key: data="{{ lookup('file', 'webupd8.key.asc') }}" state=present
+     #  Use a static file because right now using just an ID fails
+
+    - name: Autoaccept license for Java
+      sudo: true
+      shell: echo oracle-java7-installer shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/debconf-set-selections
+
+    - name: Install Google Key
+      sudo: true
+      apt_key: url=https://dl-ssl.google.com/linux/linux_signing_key.pub state=present
+
+    - name: Add Google Repo
+      sudo: true
+      apt_repository: repo='deb http://dl.google.com/linux/chrome/deb/ stable main'
+  
+    - name: Install list of packages
+      sudo: true
+      apt: pkg={{ item }} state=present update-cache=yes
+      with_items: add_packages
+ 
+    - name: Install pgld
+      sudo: true
+      apt: pkg=pgld state=present
+
+    - name: Stop the pgl service
+      sudo: true
+      service: name=pgl state=stopped
+
+    - name: Copy pgl config file
+      sudo: true
+      copy: src=files/pglcmd.conf dest=/etc/pgl/pglcmd.conf
+
+    - name: Install pglcmd
+      sudo: true
+      apt: pkg=pglcmd state=present 
+
+    - name: Install pglgui
+      sudo: true
+      apt: pkg=pglgui state=present 
+
+    - name: Install Java 7
+      sudo: true
+      apt: pkg=oracle-java7-installer state=present install_recommends=yes
+ 
+    - name: Set Java 7 Env
+      sudo: true
+      apt: pkg=oracle-java7-set-default state=present install_recommends=yes
+      
+    - name: Install (pip) python package.
+      sudo: true
+      pip: name=pip state=latest
+    
+    - name: Install (virtualenv) python package.
+      sudo: true
+      pip: name=virtualenv state=latest
+
+    - name: Installs latest available version of gimli.
+      sudo: true
+      gem: name=gimli state=latest
+    
+    - name: Remove garbage packages
+      sudo: true
+      apt: pkg=name={{ item }} state=absent purge=yes
+      with_items: remove_packages
+
+    - name: Install Dropbox control script
+      sudo: true
+      get_url: dest=/usr/local/bin/dropbox.py url=https://www.dropbox.com/download?dl=packages/dropbox.py mode=0755
+
+    - name: Download Dropbox
+      sudo: false
+      get_url: url=https://www.dropbox.com/download?plat=lnx.x86_64 dest=/home/{{user}}/Downloads/dropbox.tar.gz
+
+    - name: Load contents of bashrc
+      shell: cat ~/.bashrc
+      register: bashrc_contents
+
+    - name: Setup "pass" Password Manager
+      shell: echo "source /etc/bash_completion.d/password-store" >> ~/.bashrc
+      when: bashrc_contents.stdout.find('/etc/bash_completion.d/password-store') == -1
+     
+    - name: Set fs.inotify.max_user_watches to 100000 in /etc/sysctl.conf. This is for dropbox
+      sudo: true
+      sysctl: name=fs.inotify.max_user_watches value=100000 state=present
+
+    
+    
