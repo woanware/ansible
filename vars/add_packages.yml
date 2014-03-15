@@ -12,7 +12,8 @@ add_packages:
 - p7zip-rar 
 - p7zip-full 
 - unace 
-- unrargit-cola
+- unrar
+- git-cola
 - zip
 - unzip
 - sharutils
