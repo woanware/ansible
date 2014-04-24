@@ -45,4 +45,6 @@ add_packages:
 - python-software-properties
 - meld
 - git-cola
-
+- wireshark
+- nemo
+- nemo-fileroller
