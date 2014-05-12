@@ -49,3 +49,5 @@ add_packages:
 - wireshark
 - nemo
 - nemo-fileroller
+- glogg
+- zeal

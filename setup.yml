@@ -13,6 +13,10 @@
     - name: Add enfs UI repo
       sudo: true
       apt_repository: repo='ppa:gencfsm'
+
+    - name: Add zeal repo
+      sudo: true
+      apt_repository: repo='ppa:jerzy-kozera/zeal-ppa'
       
     - name: Add PeerGuardian repo
       sudo: true
