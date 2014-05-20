@@ -13,6 +13,10 @@
     - name: Add enfs UI repo
       sudo: true
       apt_repository: repo='ppa:gencfsm'
+
+    - name: Add zeal repo
+      sudo: true
+      apt_repository: repo='ppa:jerzy-kozera/zeal-ppa'
       
     - name: Add PeerGuardian repo
       sudo: true
@@ -21,6 +25,10 @@
     - name: add key
       apt_key: data="{{ lookup('file', 'files/webupd8.key.asc') }}" state=present
       sudo: true
+
+    - name: Add Nemo repo
+      sudo: true
+      apt_repository: repo='ppa:webupd8team/nemo'
 
     - name: Add Oracle repo
       sudo: true

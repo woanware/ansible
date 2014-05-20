@@ -47,3 +47,8 @@ add_packages:
 - meld
 - git-cola
 - pitivi
+- wireshark
+- nemo
+- nemo-fileroller
+- glogg
+- zeal
