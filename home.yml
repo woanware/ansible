@@ -120,5 +120,68 @@
       sudo: true
       sysctl: name=fs.inotify.max_user_watches value=100000 state=present
 
-    
-    
+ # http://tobert.github.io/post/2014-06-24-linux-defaults.html
+
+    - name: Tell the kernel to only swap if it really needs it
+      sudo: true
+      sysctl: name=vm.swappiness value=1 state=present
+
+    - name: Increase the number of allowed mmapped files
+      sudo: true
+      sysctl: name=vm.max_map_count value=1048576 state=present
+
+    - name: Increase the number of file handles available globally
+      sudo: true
+      sysctl: name=fs.file-max value=1048576 state=present
+
+    - name: Increase the number of sysv ipc slots for each type
+      sudo: true
+      sysctl: name=kernel.shmmax value=65536 state=present
+
+    - name: Increase the number of sysv ipc slots for each type
+      sudo: true
+      sysctl: name=kernel.msgmax value=65536 state=present
+
+    - name: Increase the number of sysv ipc slots for each type
+      sudo: true
+      sysctl: name=kernel.msgmnb value=65536 state=present
+
+    - name: Allow up to 999999 processes with corresponding pids this looks nice and rarely rolls over - I've never had a problem with it.
+      sudo: true
+      sysctl: name=kernel.pid_max value=999999 state=present
+
+    - name: Seconds to delay after a kernel panic and before rebooting automatically
+      sudo: true
+      sysctl: name=kernel.panic value=300 state=present
+
+    - name: net.ipv4.ip_local_port_range
+      sudo: true
+      sysctl: name=net.ipv4.ip_local_port_range value='10000 65535' state=present
+
+    - name: net.ipv4.tcp_window_scaling
+      sudo: true
+      sysctl: name=net.ipv4.tcp_window_scaling value=1 state=present
+
+    - name: net.ipv4.tcp_rmem
+      sudo: true
+      sysctl: name=net.ipv4.tcp_rmem value='4096 87380 16777216' state=present
+
+    - name: net.ipv4.tcp_wmem
+      sudo: true
+      sysctl: name=net.ipv4.tcp_wmem value='4096 65536 16777216' state=present
+
+    - name: net.core.rmem_max
+      sudo: true
+      sysctl: name=net.core.rmem_max value=16777216 state=present
+
+    - name: net.core.wmem_max
+      sudo: true
+      sysctl: name=net.core.wmem_max value=16777216 state=present
+
+    - name: net.core.netdev_max_backlog
+      sudo: true
+      sysctl: name=net.core.netdev_max_backlog value=2500 state=present
+
+    - name: net.core.somaxconn
+      sudo: true
+      sysctl: name=net.core.somaxconn value=65000 state=present

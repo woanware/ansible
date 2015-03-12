@@ -1,0 +1,132 @@
+- hosts: localhost
+  connection: local
+  gather_facts: False
+
+  vars:
+    user: mwoan
+
+  vars_files:
+    - vars/add_packages.yml
+    - vars/remove_packages.yml
+
+  tasks:
+
+    - name: add key
+      apt_key: data="{{ lookup('file', 'files/webupd8.key.asc') }}" state=present
+      sudo: true
+
+    - name: Add Oracle repo
+      sudo: true
+      apt_repository: repo='ppa:webupd8team/java'
+   
+     #- name: Add 
+     # apt_key: data="{{ lookup('file', 'webupd8.key.asc') }}" state=present
+     #  Use a static file because right now using just an ID fails
+
+    - name: Autoaccept license for Java
+      sudo: true
+      shell: echo oracle-java7-installer shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/debconf-set-selections
+
+    - name: Install Google Key
+      sudo: true
+      apt_key: url=https://dl-ssl.google.com/linux/linux_signing_key.pub state=present
+
+    - name: Add Google Repo
+      sudo: true
+      apt_repository: repo='deb http://dl.google.com/linux/chrome/deb/ stable main'
+  
+    - name: Install list of packages
+      sudo: true
+      apt: pkg={{ item }} state=present update-cache=yes
+      with_items: add_packages
+
+    - name: Install Java 7
+      sudo: true
+      apt: pkg=oracle-java7-installer state=present install_recommends=yes
+ 
+    - name: Set Java 7 Env
+      sudo: true
+      apt: pkg=oracle-java7-set-default state=present install_recommends=yes
+      
+    - name: Install (pip) python package.
+      sudo: true
+      pip: name=pip state=latest
+    
+    - name: Install (virtualenv) python package.
+      sudo: true
+      pip: name=virtualenv state=latest
+    
+    - name: Remove garbage packages
+      sudo: true
+      apt: pkg=name={{ item }} state=absent purge=yes
+      with_items: remove_packages
+
+    - name: Load contents of bashrc
+      shell: cat ~/.bashrc
+      register: bashrc_contents
+     
+    # http://tobert.github.io/post/2014-06-24-linux-defaults.html
+
+    - name: Tell the kernel to only swap if it really needs it
+      sudo: true
+      sysctl: name=vm.swappiness value=1 state=present
+
+    - name: Increase the number of allowed mmapped files
+      sudo: true
+      sysctl: name=vm.max_map_count value=1048576 state=present
+
+    - name: Increase the number of file handles available globally
+      sudo: true
+      sysctl: name=fs.file-max value=1048576 state=present
+
+    - name: Increase the number of sysv ipc slots for each type
+      sudo: true
+      sysctl: name=kernel.shmmax value=65536 state=present
+
+    - name: Increase the number of sysv ipc slots for each type
+      sudo: true
+      sysctl: name=kernel.msgmax value=65536 state=present
+
+    - name: Increase the number of sysv ipc slots for each type
+      sudo: true
+      sysctl: name=kernel.msgmnb value=65536 state=present
+
+    - name: Allow up to 999999 processes with corresponding pids this looks nice and rarely rolls over - I've never had a problem with it.
+      sudo: true
+      sysctl: name=kernel.pid_max value=999999 state=present
+
+    - name: Seconds to delay after a kernel panic and before rebooting automatically
+      sudo: true
+      sysctl: name=kernel.panic value=300 state=present
+
+    - name: net.ipv4.ip_local_port_range
+      sudo: true
+      sysctl: name=net.ipv4.ip_local_port_range value='10000 65535' state=present
+
+    - name: net.ipv4.tcp_window_scaling
+      sudo: true
+      sysctl: name=net.ipv4.tcp_window_scaling value=1 state=present
+
+    - name: net.ipv4.tcp_rmem
+      sudo: true
+      sysctl: name=net.ipv4.tcp_rmem value='4096 87380 16777216' state=present
+
+    - name: net.ipv4.tcp_wmem
+      sudo: true
+      sysctl: name=net.ipv4.tcp_wmem value='4096 65536 16777216' state=present
+
+    - name: net.core.rmem_max
+      sudo: true
+      sysctl: name=net.core.rmem_max value=16777216 state=present
+
+    - name: net.core.wmem_max
+      sudo: true
+      sysctl: name=net.core.wmem_max value=16777216 state=present
+
+    - name: net.core.netdev_max_backlog
+      sudo: true
+      sysctl: name=net.core.netdev_max_backlog value=2500 state=present
+
+    - name: net.core.somaxconn
+      sudo: true
+      sysctl: name=net.core.somaxconn value=65000 state=present
